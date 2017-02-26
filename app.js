@@ -64,7 +64,8 @@ let compareResults = newGames => {
       if (games[i]['id'] === newGame['id']) {
         // console.log(newGame['title'], "already exists");
         gameFound = true;
-        checkForUpdates(newGame, i, updated);
+        if (!updated) updated = checkForUpdates(newGame, i);
+        else checkForUpdates(newGame, i);
         break;
       }
     }
@@ -72,7 +73,10 @@ let compareResults = newGames => {
     if (!gameFound) games.push(newGame);
   });
 
-  if (!updated) console.log(`[${new Date()}]: No updates found.`)
+  if (!updated) {
+    let date = new Date();
+    console.log(`[${date.toLocaleDateString()} | ${date.toLocaleTimeString()}]: No updates found.`);
+  };
 };
 
 let checkForUpdates = (newGame, i) => {
@@ -80,24 +84,25 @@ let checkForUpdates = (newGame, i) => {
   // the new stuff in {newGame} and update anything
   // that's old
 
-  let updated = false;
+  let entryUpdated = false;
 
   if (games[i]['id'] === newGame['id']) {
     let keys = Object.keys(games[i]);
     keys.forEach(key => {
       if (games[i][key] !== newGame[key] && key !== 'lastUpdated') {
-        console.log(`[${new Date().toLocaleTimeString()}]: ${newGame['title']}'s ${key} value was updated from ${games[i][key]} to ${newGame[key]}`);
+        let date = new Date();
+        console.log(`[${date.toLocaleDateString()} | ${date.toLocaleTimeString()}]: ${newGame['title']}'s ${key} value was updated from ${games[i][key]} to ${newGame[key]}`);
         games[i][key] = newGame[key];
-        updated = true;
+        entryUpdated = true;
       }
     });
 
-    if (updated) {
+    if (entryUpdated) {
       games[i]['lastUpdated'] = new Date();
     }
   }
 
-  return updated;
+  return entryUpdated;
 };
 
 request();
