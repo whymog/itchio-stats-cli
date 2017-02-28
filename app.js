@@ -1,6 +1,7 @@
 'use strict';
 
 const https = require('https');
+const fs = require('fs');
 
 const API_KEY = process.argv[2] ? process.argv[2] : 'YOUR_KEY_HERE';
 const INTERVAL = process.argv[3] ? process.argv[3] : 60000;
@@ -64,6 +65,7 @@ let compareResults = newGames => {
       if (games[i]['id'] === newGame['id']) {
         // console.log(newGame['title'], "already exists");
         gameFound = true;
+
         if (!updated) updated = checkForUpdates(newGame, i);
         else checkForUpdates(newGame, i);
         break;
@@ -75,7 +77,12 @@ let compareResults = newGames => {
 
   if (!updated) {
     let date = new Date();
-    console.log(`[${date.toLocaleDateString()} | ${date.toLocaleTimeString()}]: No updates found.`);
+    let newEntry = `[${date.toLocaleDateString()} | ${date.toLocaleTimeString()}]: No updates found.`;
+
+    console.log(newEntry);
+    fs.appendFile('output.txt', newEntry + '\n', (err) => {
+      if (err) throw err;
+    });
   };
 };
 
@@ -91,7 +98,13 @@ let checkForUpdates = (newGame, i) => {
     keys.forEach(key => {
       if (games[i][key] !== newGame[key] && key !== 'lastUpdated') {
         let date = new Date();
-        console.log(`[${date.toLocaleDateString()} | ${date.toLocaleTimeString()}]: ${newGame['title']}'s ${key} value was updated from ${games[i][key]} to ${newGame[key]}`);
+        let newEntry = `[${date.toLocaleDateString()} | ${date.toLocaleTimeString()}]: ${newGame['title']}'s ${key} value was updated from ${games[i][key]} to ${newGame[key]}`;
+
+        console.log(newEntry);
+        fs.appendFile('output.txt', newEntry + '\n', (err) => {
+          if (err) throw err;
+        });
+
         games[i][key] = newGame[key];
         entryUpdated = true;
       }
